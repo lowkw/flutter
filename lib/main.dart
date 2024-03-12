@@ -1,10 +1,15 @@
+import 'package:ac_todo_app/services/idatasource.dart';
+import 'package:ac_todo_app/services/sql_datasource.dart';
 import 'package:ac_todo_app/widgets/todo_widget.dart';
 import 'package:flutter/material.dart';
 import 'models/todo.dart';
 import 'models/todo_list.dart';
 import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Get.put<IDatasource>(SQLDatasource());
   runApp(ChangeNotifierProvider(
     create: (context) => TodoList(),
     child: const TodoApp(),
@@ -48,15 +53,18 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Consumer<TodoList>(
           builder: (context, model, child) {
-            return ListView.builder(
-              itemCount: model.todoCount,
-              itemBuilder: (context, index) {
-                return TodoWidget(
-                    todo: model.todos[index],
-                    widgetColor: index % 2 == 0
-                        ? Theme.of(context).colorScheme.inversePrimary
-                        : Theme.of(context).colorScheme.secondary);
-              },
+            return RefreshIndicator(
+              onRefresh: model.refresh,
+              child: ListView.builder(
+                itemCount: model.todoCount,
+                itemBuilder: (context, index) {
+                  return TodoWidget(
+                      todo: model.todos[index],
+                      widgetColor: index % 2 == 0
+                          ? Theme.of(context).colorScheme.inversePrimary
+                          : Theme.of(context).colorScheme.secondary);
+                },
+              ),
             );
           },
         ),
@@ -87,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextFormField(
                   decoration: const InputDecoration(labelText: "Name:"),
                   controller: nameController,
+                  validator: emptyFormValidation,
                 ),
                 TextFormField(
                   decoration: const InputDecoration(
@@ -104,9 +113,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           Provider.of<TodoList>(context, listen: false).add(
                               Todo(
+                                  id: 0,
                                   name: nameController.text,
                                   description: descriptionController.text,
-                                  complete: false));
+                                  completed: false));
                         });
                         Navigator.pop(context);
                       },

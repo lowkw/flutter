@@ -36,14 +36,15 @@ class _TodoWidgetState extends State<TodoWidget> {
             ],
           ),
           Checkbox(
-            value: widget.todo.complete,
+            value: widget.todo.completed,
             onChanged: (value) {
               if (value == null) return;
               setState(() {
                 Provider.of<TodoList>(context, listen: false).updateTodo(Todo(
+                    id: widget.todo.id,
                     name: widget.todo.name,
                     description: widget.todo.description,
-                    complete: value ?? !widget.todo.complete));
+                    completed: value ?? !widget.todo.completed));
               });
             },
           )

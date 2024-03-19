@@ -1,7 +1,9 @@
 import 'package:ac_todo_app/services/idatasource.dart';
-import 'package:ac_todo_app/services/sql_datasource.dart';
+//import 'package:ac_todo_app/services/sql_datasource.dart';
+import 'package:ac_todo_app/services/hive_datasource.dart';
 import 'package:ac_todo_app/widgets/todo_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'models/todo.dart';
 import 'models/todo_list.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +11,8 @@ import 'package:get/get.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Get.put<IDatasource>(SQLDatasource());
+  Get.put<IDatasource>(HiveDatasource());
+
   runApp(ChangeNotifierProvider(
     create: (context) => TodoList(),
     child: const TodoApp(),
@@ -53,18 +56,48 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Consumer<TodoList>(
           builder: (context, model, child) {
-            return RefreshIndicator(
-              onRefresh: model.refresh,
-              child: ListView.builder(
-                itemCount: model.todoCount,
-                itemBuilder: (context, index) {
-                  return TodoWidget(
-                      todo: model.todos[index],
-                      widgetColor: index % 2 == 0
-                          ? Theme.of(context).colorScheme.inversePrimary
-                          : Theme.of(context).colorScheme.secondary);
-                },
-              ),
+            return FutureBuilder<bool>(
+              future: model.refresh(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  //Error state
+                  return const Center(
+                    child: Text("Error Leading Data, Pull down to refresh..."),
+                  );
+                }
+                //No data / Loading...
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  ); // Center
+                }
+                return RefreshIndicator(
+                  onRefresh: model.refresh,
+                  child: ListView.builder(
+                    itemCount: model.todoCount,
+                    itemBuilder: (context, index) {
+                      Todo todo = model.todos[index];
+                      return Dismissible(
+                        key: Key(todo.id.toString()),
+                        onDismissed: (direction) {
+                          setState(() {
+                            model.remove(todo);
+                          });
+                        },
+                        background: Container(
+                          color: Colors.red,
+                          child: const Icon(Icons.delete),
+                        ),
+                        child: TodoWidget(
+                            todo: todo,
+                            widgetColor: index % 2 == 0
+                                ? Theme.of(context).colorScheme.inversePrimary
+                                : Theme.of(context).colorScheme.secondary),
+                      );
+                    },
+                  ),
+                );
+              },
             );
           },
         ),

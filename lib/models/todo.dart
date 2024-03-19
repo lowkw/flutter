@@ -1,9 +1,15 @@
 import '../util.dart' as util;
+import 'package:hive/hive.dart';
 
-class Todo {
+@HiveType(typeId: 0)
+class Todo extends HiveObject {
+  @HiveField(0)
   final dynamic id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final String description;
+  @HiveField(3)
   final bool completed;
 
   Todo(
@@ -32,5 +38,27 @@ class Todo {
   @override
   String toString() {
     return "$name - $description";
+  }
+}
+
+class TodoAdapter extends TypeAdapter<Todo> {
+  @override
+  Todo read(BinaryReader reader) {
+    return Todo(
+        id: reader.read(0),
+        name: reader.read(1),
+        description: reader.read(2),
+        completed: reader.read(3));
+  }
+
+  @override
+  int get typeId => 0;
+
+  @override
+  void write(BinaryWriter writer, Todo obj) {
+    writer.write(obj.id);
+    writer.write(obj.name);
+    writer.write(obj.description);
+    writer.write(obj.completed);
   }
 }

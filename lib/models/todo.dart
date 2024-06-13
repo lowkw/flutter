@@ -16,7 +16,8 @@ class Todo extends HiveObject {
       {required this.id,
       required this.name,
       required this.description,
-      this.completed = false});
+      // this.completed = false});
+      required this.completed});
 
   Map<String, dynamic> toMap() {
     return {
@@ -37,7 +38,7 @@ class Todo extends HiveObject {
 
   @override
   String toString() {
-    return "$name - $description";
+    return "$id - $name - $description - $completed";
   }
 }
 

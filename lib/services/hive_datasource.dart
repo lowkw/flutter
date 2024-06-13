@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:ac_todo_app/models/todo.dart';
 import 'package:ac_todo_app/services/idatasource.dart';
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 
 class HiveDatasource implements IDatasource {
   late final Future init;
+  List<Todo> _todos = [];
   //late final Box<Todo> box;
 
   Future<void> initialise() async {
@@ -33,15 +37,34 @@ class HiveDatasource implements IDatasource {
   }
 
   @override
-  Future<bool> delete(Todo model) {
-    // TODO: implement delete
-    throw UnimplementedError();
+  Future<bool> delete(Todo model) async {
+    await init;
+    print('This is delete in hive datasource');
+
+    Box<Todo> box = Hive.box('todos');
+    Map<dynamic, Todo> allTodos = box.toMap();
+    int? key =
+        allTodos.keys.firstWhere((key) => allTodos[key]?.name == model.name);
+    await box.delete(key);
+
+    print(box.toMap());
+    return true;
   }
 
   @override
-  Future<bool> edit(Todo model) {
-    // TODO: implement edit
-    throw UnimplementedError();
+  Future<bool> edit(Todo model) async {
+    await init;
+    print('This is edit in hive datasource');
+
+    Box<Todo> box = Hive.box('todos');
+    Map<dynamic, Todo> allTodos = box.toMap();
+    int? key =
+        allTodos.keys.firstWhere((key) => allTodos[key]?.name == model.name);
+    print(key);
+    await box.put(key, model);
+
+    print(box.toMap());
+    return true;
   }
 
   @override

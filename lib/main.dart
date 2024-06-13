@@ -9,6 +9,8 @@ import 'models/todo_list.dart';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 
+int newID = 0;
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Get.put<IDatasource>(HiveDatasource());
@@ -79,10 +81,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       Todo todo = model.todos[index];
                       return Dismissible(
                         key: Key(todo.id.toString()),
-                        onDismissed: (direction) {
+                        onDismissed: (direction) async {
                           setState(() {
-                            model.remove(todo);
+                            Provider.of<TodoList>(context, listen: false)
+                                .removeTodo(todo);
                           });
+                          await model.remove(todo);
                         },
                         background: Container(
                           color: Colors.red,
@@ -146,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {
                           Provider.of<TodoList>(context, listen: false).add(
                               Todo(
-                                  id: 0,
+                                  id: newID + 1,
                                   name: nameController.text,
                                   description: descriptionController.text,
                                   completed: false));

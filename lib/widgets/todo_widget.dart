@@ -13,6 +13,7 @@ class TodoWidget extends StatefulWidget {
 }
 
 class _TodoWidgetState extends State<TodoWidget> {
+  late bool? isChecked = null;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,18 +34,24 @@ class _TodoWidgetState extends State<TodoWidget> {
                       .bodyMedium!
                       .copyWith(fontWeight: FontWeight.w800)),
               Text(widget.todo.description),
+              Text(widget.todo.completed.toString()),
             ],
           ),
           Checkbox(
-            value: widget.todo.completed,
-            onChanged: (value) {
-              if (value == null) return;
+            tristate: false,
+            // value: widget.todo.completed,
+            value: isChecked ?? widget.todo.completed,
+            onChanged: (bool? value) {
+              // if (value == null) return;
               setState(() {
-                Provider.of<TodoList>(context, listen: false).updateTodo(Todo(
+                isChecked = value;
+                // Provider.of<TodoList>(context, listen: false).updateTodo(Todo(
+                Provider.of<TodoList>(context, listen: false).edit(Todo(
                     id: widget.todo.id,
                     name: widget.todo.name,
                     description: widget.todo.description,
-                    completed: value ?? !widget.todo.completed));
+                    // completed: value ?? !widget.todo.completed));
+                    completed: isChecked!));
               });
             },
           )

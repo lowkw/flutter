@@ -37,10 +37,26 @@ class TodoList extends ChangeNotifier {
     notifyListeners();
   }
 
-  void remove(Todo todo) async {
+  bool removeTodo(Todo todo) {
+    Todo foundTodo = _todos.firstWhere((element) => element.name == todo.name);
+    bool removed = _todos.remove(foundTodo);
+    return removed;
+  }
+
+  Future<bool> remove(Todo todo) async {
     IDatasource datasource = Get.find();
     await datasource.delete(todo);
+    _todos.clear();
+    await refresh();
     notifyListeners();
+    return true;
+  }
+
+  void edit(Todo todo) async {
+    IDatasource datasource = Get.find();
+    await datasource.edit(todo);
+    await refresh();
+    notifyListeners(); // Triggers the update of each consumer
   }
 
   void updateTodo(Todo todo) {

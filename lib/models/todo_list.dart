@@ -71,7 +71,7 @@ class TodoList extends ChangeNotifier {
     IDatasource datasource = Get.find();
     //GetIt.i<IDatasource>.browse();
     _todos = await datasource.browse();
-    notifyListeners();
+    //notifyListeners();
     return true;
   }
 }

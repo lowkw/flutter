@@ -34,7 +34,7 @@ class _TodoWidgetState extends State<TodoWidget> {
                       .bodyMedium!
                       .copyWith(fontWeight: FontWeight.w800)),
               Text(widget.todo.description),
-              Text(widget.todo.completed.toString()),
+              //Text(widget.todo.completed.toString()),
             ],
           ),
           Checkbox(
